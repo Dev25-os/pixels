@@ -16,6 +16,8 @@ import Categories from "@/components/Categories";
 import { apiCall } from "@/api";
 import ImageGridView from "@/components/ImageGridView";
 
+let page = 1;
+
 const HomeScreen = () => {
   const { top } = useSafeAreaInsets();
   const [search, setSearch] = useState<string>("");
@@ -27,7 +29,27 @@ const HomeScreen = () => {
 
   const clearText = () => {
     setSearch("");
+    page = 1;
+    setImages([]);
+    fetchImages({ page });
   };
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setTimeout(() => {
+      if (value.length > 2) {
+        page = 1;
+        setImages([]);
+        fetchImages({ page, q: value });
+      }
+      if (value == "") {
+        page = 1;
+        setImages([]);
+        fetchImages({ page });
+      }
+    }, 400);
+  };
+
   const handleActiveCategory = (category: string | null) => {
     setActiveCategory(category);
     console.log("active", activeCategory);
@@ -37,11 +59,10 @@ const HomeScreen = () => {
     fetchImages();
   }, []);
 
-  const fetchImages = async (params = { page: 1 }, append = true) => {
+  const fetchImages = async (params = { page: 1 }, append = false) => {
     let res = await apiCall(params);
-    console.log("ress", res.hits[0]);
     if (append) {
-      setImages([...images, res.hits]);
+      setImages([...images, ...res.hits]);
     } else {
       setImages([...res.hits]);
     }
@@ -73,7 +94,7 @@ const HomeScreen = () => {
               color={theme.colors.neutral(0.7)}
             />
             <TextInput
-              onChangeText={(value) => setSearch(value)}
+              onChangeText={(value) => handleSearch(value)}
               value={search}
               ref={searchInputRef}
               placeholder="Search..."
@@ -102,10 +123,7 @@ const HomeScreen = () => {
         />
 
         {/* imageGridView */}
-        {
-          images.length>0&&<ImageGridView images={images} />
-}
-
+        {images?.length > 0 && <ImageGridView images={images} />}
       </ScrollView>
     </View>
   );
