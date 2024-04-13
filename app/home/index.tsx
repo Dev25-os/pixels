@@ -15,6 +15,7 @@ import { hp, wp } from "@/helper/common";
 import Categories from "@/components/Categories";
 import { apiCall } from "@/api";
 import ImageGridView from "@/components/ImageGridView";
+import FiltersModal from "@/components/FiltersModal";
 
 let page = 1;
 
@@ -25,7 +26,15 @@ const HomeScreen = () => {
   const [images, setImages] = useState<any>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
+  const filterModalRef = useRef(null);
   const paddingTop = top > 0 ? top + 10 : 30;
+
+  const openModal = () => {
+    filterModalRef?.current?.present();
+  };
+  const closeModal = () => {
+    filterModalRef?.current?.close();
+  };
 
   const clearText = () => {
     setSearch("");
@@ -36,6 +45,7 @@ const HomeScreen = () => {
 
   const handleSearch = (value: string) => {
     setSearch(value);
+    setActiveCategory("");
     setTimeout(() => {
       if (value.length > 2) {
         page = 1;
@@ -53,6 +63,14 @@ const HomeScreen = () => {
   const handleActiveCategory = (category: string | null) => {
     setActiveCategory(category);
     console.log("active", activeCategory);
+    setImages([]);
+    setSearch("");
+    page = 1;
+    let params = {
+      page,
+    };
+    if (category) params.category = category;
+    fetchImages(params, false);
   };
 
   useEffect(() => {
@@ -75,7 +93,7 @@ const HomeScreen = () => {
         <Pressable>
           <Text style={styles.title}>Pixels</Text>
         </Pressable>
-        <Pressable>
+        <Pressable onPress={openModal}>
           <FontAwesome6
             name="bars-staggered"
             size={22}
@@ -125,6 +143,9 @@ const HomeScreen = () => {
         {/* imageGridView */}
         {images?.length > 0 && <ImageGridView images={images} />}
       </ScrollView>
+
+      {/* FiltersModal */}
+      <FiltersModal filterModalRef={filterModalRef} />
     </View>
   );
 };
