@@ -25,6 +25,12 @@ const HomeScreen = () => {
   const searchInputRef = useRef(null);
   const [images, setImages] = useState<any>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [filterOptions, setFilterOptions] = useState({
+    // orders: "",
+    // orientations: "",
+    // type: "",
+    // color: "",
+  });
 
   const filterModalRef = useRef(null);
   const paddingTop = top > 0 ? top + 10 : 30;
@@ -78,12 +84,41 @@ const HomeScreen = () => {
   }, []);
 
   const fetchImages = async (params = { page: 1 }, append = false) => {
+    console.log("params", params);
+
     let res = await apiCall(params);
     if (append) {
       setImages([...images, ...res.hits]);
     } else {
       setImages([...res.hits]);
     }
+  };
+
+  const handleApply = () => {
+    console.log("filterOptions", { ...filterOptions });
+    if (filterOptions) {
+      page = 1;
+      setImages([]);
+      let params = {
+        page,
+        ...filterOptions,
+      };
+      if (activeCategory) params.category = activeCategory;
+      if (search) params.q = search;
+      fetchImages(params, false);
+    }
+    closeModal();
+  };
+  const handleReset = () => {
+    setFilterOptions({});
+    page = 1;
+    setImages([]);
+    let params = {
+      page,
+    };
+    fetchImages(params, false);
+
+    closeModal();
   };
 
   return (
@@ -145,7 +180,13 @@ const HomeScreen = () => {
       </ScrollView>
 
       {/* FiltersModal */}
-      <FiltersModal filterModalRef={filterModalRef} />
+      <FiltersModal
+        filterModalRef={filterModalRef}
+        filterOptions={filterOptions}
+        setFilterOptions={setFilterOptions}
+        handleApply={handleApply}
+        handleReset={handleReset}
+      />
     </View>
   );
 };

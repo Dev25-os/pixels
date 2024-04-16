@@ -20,3 +20,10 @@ export const categories: string[] = [
   "business",
   "music",
 ];
+
+export const filterData = {
+  orders: ["popular", "latest"],
+  orientations: ["horizontal", "vertical"],
+  type: ["photo", "vector", "illustration"],
+  color: ["red", "green", "blue", "yellow", "black"],
+};
