@@ -6,6 +6,7 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import React, { useRef, useState, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,12 +26,7 @@ const HomeScreen = () => {
   const searchInputRef = useRef(null);
   const [images, setImages] = useState<any>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [filterOptions, setFilterOptions] = useState({
-    // orders: "",
-    // orientations: "",
-    // type: "",
-    // color: "",
-  });
+  const [filterOptions, setFilterOptions] = useState<null | object>({});
 
   const filterModalRef = useRef(null);
   const paddingTop = top > 0 ? top + 10 : 30;
@@ -56,12 +52,12 @@ const HomeScreen = () => {
       if (value.length > 2) {
         page = 1;
         setImages([]);
-        fetchImages({ page, q: value });
+        fetchImages({ page, q: value, ...filterOptions }, false);
       }
       if (value == "") {
         page = 1;
         setImages([]);
-        fetchImages({ page });
+        fetchImages({ page, ...filterOptions }, false);
       }
     }, 400);
   };
@@ -74,6 +70,7 @@ const HomeScreen = () => {
     page = 1;
     let params = {
       page,
+      ...filterOptions,
     };
     if (category) params.category = category;
     fetchImages(params, false);
@@ -84,8 +81,6 @@ const HomeScreen = () => {
   }, []);
 
   const fetchImages = async (params = { page: 1 }, append = false) => {
-    console.log("params", params);
-
     let res = await apiCall(params);
     if (append) {
       setImages([...images, ...res.hits]);
@@ -119,6 +114,21 @@ const HomeScreen = () => {
     fetchImages(params, false);
 
     closeModal();
+  };
+
+  const handleFilterOption = (key: any) => {
+    let tempFilter = { ...filterOptions };
+    delete tempFilter[key];
+    setFilterOptions({ ...tempFilter });
+    page = 1;
+    setImages([]);
+    let params = {
+      page,
+      ...tempFilter,
+    };
+    if (activeCategory) params.category = activeCategory;
+    if (search) params.q = search;
+    fetchImages(params, false);
   };
 
   return (
@@ -175,10 +185,39 @@ const HomeScreen = () => {
           handleActiveCategory={handleActiveCategory}
         />
 
+        {/* show filters */}
+        {filterOptions && (
+          <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 25, gap: 15 }}
+          >
+            {Object.keys(filterOptions)?.map((key: any, index) => (
+              <View style={styles.filterIcon} key={index}>
+                <Text>{filterOptions[key]} </Text>
+                <Pressable onPress={() => handleFilterOption(key)}>
+                  <Ionicons
+                    name="close"
+                    size={14}
+                    color={theme.colors.neutral(0.8)}
+                  />
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+        )}
+
         {/* imageGridView */}
         {images?.length > 0 && <ImageGridView images={images} />}
-      </ScrollView>
 
+        {/* loading  */}
+
+        <View
+          style={{ marginBottom: 70, marginTop: images.length > 0 ? 10 : 70 }}
+        >
+          <ActivityIndicator size="large" />
+        </View>
+      </ScrollView>
       {/* FiltersModal */}
       <FiltersModal
         filterModalRef={filterModalRef}
@@ -233,5 +272,14 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.xl,
     position: "absolute",
     right: 10,
+  },
+  filterIcon: {
+    backgroundColor: theme.colors.grayBG,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 10,
+    gap: 10,
   },
 });

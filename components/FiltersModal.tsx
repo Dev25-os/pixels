@@ -13,7 +13,6 @@ import { filterData } from "@/constants/data";
 import { hp } from "@/helper/common";
 import { theme } from "@/constants/theme";
 
-
 const FiltersModal = ({
   filterModalRef,
   setFilterOptions,
@@ -67,7 +66,9 @@ const FiltersModal = ({
             {/* render filter category with items */}
 
             {/* order */}
-            <View>
+            <Animated.View
+              entering={FadeInDown.duration(200).springify().damping(11)}
+            >
               <Text style={styles.filterCatTitle}>Order</Text>
               <View style={styles.filterCatContainer}>
                 {filterData.orders.map((order, index) => (
@@ -92,9 +93,11 @@ const FiltersModal = ({
                   </Pressable>
                 ))}
               </View>
-            </View>
+            </Animated.View>
             {/* orientation */}
-            <View>
+            <Animated.View
+              entering={FadeInDown.duration(300).springify().damping(11)}
+            >
               <Text style={styles.filterCatTitle}>Orientations</Text>
               <View style={styles.filterCatContainer}>
                 {filterData.orientations.map((orientation, index) => (
@@ -119,9 +122,11 @@ const FiltersModal = ({
                   </Pressable>
                 ))}
               </View>
-            </View>
+            </Animated.View>
             {/* type */}
-            <View>
+            <Animated.View
+              entering={FadeInDown.duration(400).springify().damping(11)}
+            >
               <Text style={styles.filterCatTitle}>Type</Text>
               <View style={styles.filterCatContainer}>
                 {filterData.type.map((type, index) => (
@@ -146,9 +151,11 @@ const FiltersModal = ({
                   </Pressable>
                 ))}
               </View>
-            </View>
+            </Animated.View>
             {/* colors */}
-            <View>
+            <Animated.View
+              entering={FadeInDown.duration(500).springify().damping(11)}
+            >
               <Text style={styles.filterCatTitle}>Colors</Text>
               <View style={styles.filterCatContainer}>
                 {filterData.color.map((color, index) => (
@@ -173,11 +180,12 @@ const FiltersModal = ({
                   </Pressable>
                 ))}
               </View>
-            </View>
+            </Animated.View>
           </View>
 
           {/* action buttons */}
-          <View
+          <Animated.View
+            entering={FadeInDown.duration(800).springify().damping(11)}
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -211,7 +219,7 @@ const FiltersModal = ({
             >
               <Text style={{ color: "white" }}>Apply</Text>
             </Pressable>
-          </View>
+          </Animated.View>
         </View>
       </BottomSheetView>
     </BottomSheetModal>
