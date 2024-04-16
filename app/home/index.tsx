@@ -27,8 +27,11 @@ const HomeScreen = () => {
   const [images, setImages] = useState<any>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [filterOptions, setFilterOptions] = useState<null | object>({});
+  const [isEndReached, setIsEndReached] = useState<boolean>(false);
 
   const filterModalRef = useRef(null);
+  const scrollRef = useRef(null);
+
   const paddingTop = top > 0 ? top + 10 : 30;
 
   const openModal = () => {
@@ -80,7 +83,7 @@ const HomeScreen = () => {
     fetchImages();
   }, []);
 
-  const fetchImages = async (params = { page: 1 }, append = false) => {
+  const fetchImages = async (params = { page: 1 }, append = true) => {
     let res = await apiCall(params);
     if (append) {
       setImages([...images, ...res.hits]);
@@ -131,11 +134,43 @@ const HomeScreen = () => {
     fetchImages(params, false);
   };
 
+  const handleHomeClick = () => {
+    scrollRef?.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+  };
+
+  const handleScroll = (e: any) => {
+    const contentHeight = e.nativeEvent.contentSize.height;
+    const scrollViewHeight = e.nativeEvent.layoutMeasurement.height;
+    const scrollOffset = e.nativeEvent.contentOffset.y;
+    const bottomPosition = contentHeight - scrollViewHeight;
+
+    if (scrollOffset >= bottomPosition - 1) {
+      if (!isEndReached) {
+        setIsEndReached(true);
+        console.log("reached bottom position");
+        // fetch more images
+        ++page;
+        let params = {
+          page,
+          ...filterOptions,
+        };
+        if (activeCategory) params.category = activeCategory;
+        if (search) params.q = search;
+        fetchImages(params, true);
+      }
+    } else if (isEndReached) {
+      setIsEndReached(false);
+    }
+  };
+
   return (
     <View style={[styles.container, { paddingTop }]}>
       {/* heading */}
       <View style={styles.heading}>
-        <Pressable>
+        <Pressable onPress={handleHomeClick}>
           <Text style={styles.title}>Pixels</Text>
         </Pressable>
         <Pressable onPress={openModal}>
@@ -147,7 +182,12 @@ const HomeScreen = () => {
         </Pressable>
       </View>
       {/* scrollbar  */}
-      <ScrollView contentContainerStyle={{ gap: 15 }}>
+      <ScrollView
+        contentContainerStyle={{ gap: 15 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={5}
+        ref={scrollRef}
+      >
         {/* Search bar */}
         <View style={styles.search}>
           <View style={styles.searchIcon}>
