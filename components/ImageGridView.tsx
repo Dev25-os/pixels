@@ -5,7 +5,7 @@ import { MasonryFlashList } from "@shopify/flash-list";
 import { getColumns, getImageSize, wp } from "@/helper/common";
 import { theme } from "@/constants/theme";
 
-const ImageGridView = ({ images }: any) => {
+const ImageGridView = ({ images, router }: any) => {
   const column = getColumns();
   const getImageHeight = (item: any) => {
     const { imageHeight, imageWidth } = item;
@@ -25,6 +25,9 @@ const ImageGridView = ({ images }: any) => {
         contentContainerStyle={styles.listContainer}
         renderItem={({ item, index }) => (
           <Pressable
+            onPress={() =>
+              router.push({ pathname: "home/imageOverlay", params: { ...item } })
+            }
             style={[styles.imageWrapper, !isLastInRow(index) && styles.spacing]}
           >
             {/* <Image style={styles.images} source={{ uri: item?.webformatURL }} /> */}

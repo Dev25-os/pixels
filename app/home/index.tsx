@@ -17,10 +17,13 @@ import Categories from "@/components/Categories";
 import { apiCall } from "@/api";
 import ImageGridView from "@/components/ImageGridView";
 import FiltersModal from "@/components/FiltersModal";
+import { useRouter } from "expo-router";
 
 let page = 1;
 
 const HomeScreen = () => {
+  const router = useRouter();
+
   const { top } = useSafeAreaInsets();
   const [search, setSearch] = useState<string>("");
   const searchInputRef = useRef(null);
@@ -248,7 +251,9 @@ const HomeScreen = () => {
         )}
 
         {/* imageGridView */}
-        {images?.length > 0 && <ImageGridView images={images} />}
+        {images?.length > 0 && (
+          <ImageGridView images={images} router={router} />
+        )}
 
         {/* loading  */}
 
